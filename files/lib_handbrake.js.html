@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib&#x2F;handbrake.js - handbrake-js</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title="handbrake-js"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/handbrake-js.html">handbrake-js</a></li>
+            
+                <li><a href="..&#x2F;classes/HandbrakeProcess.html">HandbrakeProcess</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: lib&#x2F;handbrake.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;**
+An npm distribution of [HandbrakeCLI](https:&#x2F;&#x2F;trac.handbrake.fr&#x2F;wiki&#x2F;CLIGuide) for either command line or library use.
+@class handbrake-js
+@static
+*&#x2F;
+
+&#x2F;&#x2F; module dependencies
+var path = require(&quot;path&quot;),
+    util = require(&quot;util&quot;),
+    EventEmitter = require(&quot;events&quot;).EventEmitter,
+    cp = require(&quot;child_process&quot;),
+    nature = require(&quot;nature&quot;);
+
+function l(msg){
+    console.log.apply(null, Array.prototype.slice.call(arguments));
+}
+
+&#x2F;&#x2F; points to the HandbrakeCLI executable downloaded by the install script
+var _HandbrakeCLIPath = 
+    process.platform == &quot;darwin&quot;
+        ? path.join(__dirname, &quot;..&#x2F;bin&#x2F;HandbrakeCLI&quot;)
+        : process.platform == &quot;win32&quot;
+            ? process.arch == &quot;x64&quot;
+                ? path.join(__dirname, &quot;..&#x2F;bin&#x2F;HandbrakeCLIx64.exe&quot;)
+                : path.join(__dirname, &quot;..&quot;, &quot;bin&quot;, &quot;HandbrakeCLIx32.exe&quot;)
+            : &quot;HandBrakeCLI&quot;;
+
+&#x2F;**
+Runs HandbrakeCLI with the supplied [options](https:&#x2F;&#x2F;trac.handbrake.fr&#x2F;wiki&#x2F;CLIGuide).
+@method run
+@param {Object|Thing|Array} options [Options](https:&#x2F;&#x2F;trac.handbrake.fr&#x2F;wiki&#x2F;CLIGuide) to pass directly to HandbrakeCLI
+@param {Function} [onComplete] If passed, &#x60;onComplete(stdout, stderr)&#x60; will be called on completion.
+@return {HandbrakeProcess} A HandbrakeProcess instance on which you can listen for events.
+
+@example
+There are two ways to invoke run(), the first returns an EventEmitter which emits output as it happens. 
+            
+    var handbrake = require(&quot;handbrake-js&quot;);
+    
+    var options = {
+        input: &quot;Eight Miles High.mov&quot;,
+        output: &quot;Eight Miles High.m4v&quot;,
+        preset: &quot;Normal&quot;
+    };
+
+    handbrake.run(options)
+        .on(&quot;output&quot;, console.log);
+        .on(&quot;progress&quot;, function(encode){
+            console.log(encode.percentComplete);
+        })
+        .on(&quot;complete&quot;, function(){ 
+            console.log(&quot;Encode complete&quot;); 
+        });
+
+The second method is to pass an &#x60;onComplete&#x60; callback. It&#x27;s more convenient for short duration tasks: 
+@example
+    handbrake.run({ preset-list: true }, function(stdout, stderr){
+        console.log(stdout);
+    });
+*&#x2F;
+exports.run = function(options, onComplete){
+    var config = exports.run.config.set(options);
+
+    if (onComplete){
+        var cmd = util.format(&#x27;&quot;%s&quot; %s&#x27;, _HandbrakeCLIPath, config.toArray(true).join(&quot; &quot;));
+        cp.exec(cmd, function(err, stdout, stderr){
+            if (err) throw err;
+            onComplete(stdout, stderr);
+        });
+    } else {
+        var handbrake = new HandbrakeProcess();
+
+        if (!config.valid){
+            process.nextTick(function(){ handbrake.emit(&quot;error&quot;, config.errors); });
+            return handbrake;
+        }
+
+        var output = &quot;&quot;,
+            handle = cp.spawn(_HandbrakeCLIPath, config.toArray());
+
+        &#x2F;&#x2F; propogate CTRL+C to Handbrake process
+        var sigInt = function(){
+            handle.kill();
+        };
+        process.on(&quot;SIGINT&quot;, sigInt);
+
+        handbrake.args = config;
+        handle.stdout.setEncoding(&quot;utf-8&quot;);
+        handle.stderr.setEncoding(&quot;utf-8&quot;);
+
+        handle.stdout.on(&quot;data&quot;, function(data){
+            output += data;
+            if (&#x2F;Encoding:&#x2F;.test(data)){
+                var match = data.match(&#x2F;task 1 of 1, (.*) %( \((.*?) fps, avg (.*?) fps, ETA (.*?)\))?&#x2F;);
+                handbrake.emit(&quot;progress&quot;, {
+                    percentComplete: match[1],
+                    fps: +match[3],
+                    avgFps: +match[4],
+                    eta: match[5]
+                });
+            } else {
+                handbrake.emit(&quot;output&quot;, data);
+            }
+        });
+        
+        handle.stderr.on(&quot;data&quot;, function(data){
+            output += data;
+            handbrake.emit(&quot;output&quot;, data);
+        });
+
+        handle.on(&quot;exit&quot;, function(code, signal){
+            &#x2F;&#x2F; Handbrake was killed
+            if (signal == &quot;SIGTERM&quot;){
+                handbrake.emit(&quot;terminated&quot;);
+
+            &#x2F;&#x2F; Handbrake failed
+            } else if (code &amp;&amp; code != 0){
+                var error = util.format(
+                    &quot;code: %s\noptions: %s\noutput: %s&quot;, 
+                    code, 
+                    util.inspect(config.toJSON()), 
+                    output
+                );
+                handbrake.emit(&quot;error&quot;, new Error(error));
+
+            &#x2F;&#x2F; Handbrake completed but failed to find video content
+            } else if (code == 0 &amp;&amp; &#x2F;No title found\.&#x2F;.test(output)){
+                handbrake.emit(&quot;error&quot;, new Error(&quot;encode failed, not a video file&quot;));
+
+            &#x2F;&#x2F; Handbrake seg faulted
+            } else if (code == null){
+                var error = util.format(
+                    &quot;msg: %s\noptions: %s\noutput: %s&quot;, 
+                    &quot;Handbrake crashed (Segmentation fault)&quot;, 
+                    util.inspect(config.toJSON()), 
+                    output
+                );
+                handbrake.emit(&quot;error&quot;, new Error(error));
+
+            } else {
+                handbrake.emit(&quot;complete&quot;);
+            }
+            
+            process.removeListener(&quot;SIGINT&quot;, sigInt);
+        });
+
+        return handbrake;
+    }
+};
+exports.run.config = new nature.Thing()
+    .define(&quot;general&quot;, [
+        { name: &quot;help&quot;, type: &quot;boolean&quot;, alias: &quot;h&quot; },
+        { name: &quot;verbose&quot;, type: &quot;boolean&quot;, alias: &quot;v&quot; },
+        { name: &quot;input&quot;, type: &quot;string&quot;, alias: &quot;i&quot; },
+        { name: &quot;output&quot;, type: &quot;string&quot;, alias: &quot;o&quot; },
+        { name: &quot;update&quot;, type: &quot;boolean&quot;, alias: &quot;u&quot; },
+        { name: &quot;preset&quot;, type: &quot;string&quot;, alias: &quot;Z&quot; },
+        { name: &quot;preset-list&quot;, type: &quot;boolean&quot;, alias: &quot;z&quot; },
+        { name: &quot;no-dvdnav&quot;, type: &quot;boolean&quot; }
+    ])
+    .define(&quot;source&quot;, [
+        { name: &quot;title&quot;, type: &quot;number&quot;, alias: &quot;t&quot; },
+        { name: &quot;min-duration&quot;, type: &quot;number&quot; },
+        { name: &quot;scan&quot;, type: &quot;boolean&quot; },
+        { name: &quot;main-feature&quot;, type: &quot;boolean&quot; },
+        { name: &quot;chapters&quot;, type: &quot;string&quot;, alias: &quot;c&quot; },
+        { name: &quot;angle&quot;, type: &quot;number&quot; },
+        { name: &quot;previews&quot;, type: &quot;string&quot; },
+        { name: &quot;start-at-preview&quot;, type: &quot;string&quot; },
+        { name: &quot;start-at&quot;, type: &quot;string&quot;, valueTest: &#x2F;duration:|frame:|pts:&#x2F;, valueFailMsg: &quot;please specify the unit, e.g. --start-at duration:10 or --start-at frame:2000&quot; },
+        { name: &quot;stop-at&quot;, type: &quot;string&quot;, valueTest: &#x2F;duration:|frame:|pts:&#x2F;, valueFailMsg: &quot;please specify the unit, e.g. --stop-at duration:100 or --stop-at frame:3000&quot; }
+    ])
+    .define(&quot;destination&quot;, [
+        { name: &quot;format&quot;, type: &quot;string&quot;, alias: &quot;f&quot; },
+        { name: &quot;markers&quot;, type: &quot;boolean&quot;, alias: &quot;m&quot; },
+        { name: &quot;large-file&quot;, type: &quot;boolean&quot;, alias: &quot;4&quot; },
+        { name: &quot;optimize&quot;, type: &quot;boolean&quot;, alias: &quot;O&quot; },
+        { name: &quot;ipod-atom&quot;, type: &quot;boolean&quot;, alias: &quot;I&quot; }
+    ])
+    .define(&quot;video&quot;, [
+        { name: &quot;encoder&quot;, type: &quot;string&quot;, alias: &quot;e&quot; },
+        { name: &quot;x264-preset&quot;, type: &quot;string&quot; },
+        { name: &quot;x264-tune&quot;, type: &quot;string&quot; },
+        { name: &quot;encopts&quot;, type: &quot;string&quot;, alias: &quot;x&quot; },
+        { name: &quot;x264-profile&quot;, type: &quot;string&quot; },
+        { name: &quot;quality&quot;, type: &quot;number&quot;, alias: &quot;q&quot; },
+        { name: &quot;vb&quot;, type: &quot;number&quot;, alias: &quot;b&quot; },
+        { name: &quot;two-pass&quot;, type: &quot;boolean&quot;, alias: &quot;2&quot; },
+        { name: &quot;turbo&quot;, type: &quot;boolean&quot;, alias: &quot;T&quot; },
+        { name: &quot;rate&quot;, type: &quot;number&quot;, alias: &quot;r&quot; },
+        { name: &quot;vfr&quot;, type: &quot;boolean&quot; },
+        { name: &quot;cfr&quot;, type: &quot;boolean&quot; },
+        { name: &quot;pfr&quot;, type: &quot;boolean&quot; }
+    ])
+    .define(&quot;audio&quot;, [
+        { name: &quot;audio&quot;, type: &quot;string&quot;, alias: &quot;a&quot; },
+        { name: &quot;aencoder&quot;, type: &quot;string&quot;, alias: &quot;E&quot; },
+        { name: &quot;audio-copy-mask&quot;, type: &quot;string&quot; },
+        { name: &quot;audio-fallback&quot;, type: &quot;string&quot; },
+        { name: &quot;ab&quot;, type: &quot;string&quot;, alias: &quot;B&quot; },
+        { name: &quot;aq&quot;, type: &quot;string&quot;, alias: &quot;Q&quot; },
+        { name: &quot;ac&quot;, type: &quot;string&quot;, alias: &quot;C&quot; },
+        { name: &quot;mixdown&quot;, type: &quot;string&quot;, alias: &quot;6&quot; },
+        { name: &quot;arate&quot;, type: &quot;string&quot;, alias: &quot;R&quot; },
+        { name: &quot;drc&quot;, type: &quot;number&quot;, alias: &quot;D&quot; },
+        { name: &quot;gain&quot;, type: &quot;number&quot; },
+        { name: &quot;aname&quot;, type: &quot;string&quot;, alias: &quot;A&quot; }
+    ])            
+    .define(&quot;picture&quot;, [
+        { name: &quot;width&quot;, type: &quot;number&quot;, alias: &quot;w&quot; },
+        { name: &quot;height&quot;, type: &quot;number&quot;, alias: &quot;l&quot; },
+        { name: &quot;crop&quot;, type: &quot;string&quot; },
+        { name: &quot;loose-crop&quot;, type: &quot;number&quot; },
+        { name: &quot;maxHeight&quot;, type: &quot;number&quot;, alias: &quot;Y&quot; },
+        { name: &quot;maxWidth&quot;, type: &quot;number&quot;, alias: &quot;X&quot; },
+        { name: &quot;strict-anamorphic&quot;, type: &quot;boolean&quot; },
+        { name: &quot;loose-anamorphic&quot;, type: &quot;boolean&quot; },
+        { name: &quot;custom-anamorphic&quot;, type: &quot;boolean&quot; },
+        { name: &quot;display-width&quot;, type: &quot;number&quot; },
+        { name: &quot;keep-display-aspect&quot;, type: &quot;boolean&quot; },
+        { name: &quot;pixel-aspect&quot;, type: &quot;string&quot; },
+        { name: &quot;itu-par&quot;, type: &quot;boolean&quot; },
+        { name: &quot;modulus&quot;, type: &quot;number&quot; },
+        { name: &quot;color-matrix&quot;, type: &quot;string&quot;, alias: &quot;M&quot; }
+    ])            
+    .define(&quot;filters&quot;, [
+        { name: &quot;deinterlace&quot;, type: &quot;string&quot;, alias: &quot;d&quot; },
+        { name: &quot;decomb&quot;, type: &quot;string&quot;, alias: &quot;5&quot; },
+        { name: &quot;detelecine&quot;, type: &quot;string&quot;, alias: &quot;9&quot; },
+        { name: &quot;denoise&quot;, type: &quot;string&quot;, alias: &quot;8&quot; },
+        { name: &quot;deblock&quot;, type: &quot;string&quot;, alias: &quot;7&quot; },
+        { name: &quot;rotate&quot;, type: &quot;number&quot; },
+        { name: &quot;grayscale&quot;, type: &quot;boolean&quot;, alias: &quot;g&quot; }
+    ])
+    .define(&quot;subtitle&quot;, [
+        { name: &quot;subtitle&quot;, type: &quot;string&quot;, alias: &quot;s&quot; },
+        { name: &quot;subtitle-forced&quot;, type: &quot;number&quot; },
+        { name: &quot;subtitle-burn&quot;, type: &quot;number&quot; },
+        { name: &quot;subtitle-default&quot;, type: &quot;number&quot; },
+        { name: &quot;native-language&quot;, type: &quot;string&quot;, alias: &quot;N&quot; },
+        { name: &quot;native-dub&quot;, type: &quot;boolean&quot; },
+        { name: &quot;srt-file&quot;, type: &quot;string&quot; },
+        { name: &quot;srt-codeset&quot;, type: &quot;string&quot; },
+        { name: &quot;srt-offset&quot;, type: &quot;string&quot; },
+        { name: &quot;srt-lang&quot;, type: &quot;string&quot; },
+        { name: &quot;srt-default&quot;, type: &quot;number&quot; }
+    ]);
+
+exports._inject = function(mock){
+    cp = mock || cp;   
+};
+exports.HandbrakeProcess = HandbrakeProcess;
+
+&#x2F;**
+A handle on the Handbrake encoding process, used to catch and respond to run-time events.
+@class HandbrakeProcess
+@constructor
+*&#x2F;
+function HandbrakeProcess(){
+    EventEmitter.call(this);
+}
+util.inherits(HandbrakeProcess, EventEmitter);
+&#x2F;**
+Fired on completion of a successful encode
+@event complete
+*&#x2F;
+&#x2F;**
+Fired if either HandbrakeCLI crashed or ran successfully but failed to find a valid title in the input video.
+@event error
+@param {Error} error
+*&#x2F;
+&#x2F;**
+Fired if Handbrake-js was killed by CTRL-C
+@event terminated
+*&#x2F;
+&#x2F;**
+Passes the standard HandbrakeCLI output
+@event output
+@param {String} output
+*&#x2F;
+&#x2F;**
+Fired at regular intervals throughout the encode process passing progress information
+@event progress
+@param {Object} progress
+  @param {Number} progress.percentComplete Percentage complete
+  @param {Number} progress.fps Frames per second
+  @param {Number} progress.avgFps Average frames per second
+  @param {String} progress.eta Estimated time until completion
+*&#x2F;
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>

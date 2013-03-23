@@ -1,0 +1,161 @@
+{
+    "project": {
+        "name": "handbrake-js"
+    },
+    "files": {
+        "lib/handbrake.js": {
+            "name": "lib/handbrake.js",
+            "modules": {},
+            "classes": {
+                "handbrake-js": 1,
+                "HandbrakeProcess": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "handbrake-js": {
+            "name": "handbrake-js",
+            "shortname": "handbrake-js",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "lib/handbrake.js",
+            "line": 1,
+            "description": "An npm distribution of [HandbrakeCLI](https://trac.handbrake.fr/wiki/CLIGuide) for either command line or library use.",
+            "static": 1
+        },
+        "HandbrakeProcess": {
+            "name": "HandbrakeProcess",
+            "shortname": "HandbrakeProcess",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "lib/handbrake.js",
+            "line": 254,
+            "description": "A handle on the Handbrake encoding process, used to catch and respond to run-time events.",
+            "is_constructor": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "lib/handbrake.js",
+            "line": 28,
+            "description": "Runs HandbrakeCLI with the supplied [options](https://trac.handbrake.fr/wiki/CLIGuide).",
+            "itemtype": "method",
+            "name": "run",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "[Options](https://trac.handbrake.fr/wiki/CLIGuide) to pass directly to HandbrakeCLI",
+                    "type": "Object|Thing|Array"
+                },
+                {
+                    "name": "onComplete",
+                    "description": "If passed, `onComplete(stdout, stderr)` will be called on completion.",
+                    "type": "Function",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "A HandbrakeProcess instance on which you can listen for events.",
+                "type": "HandbrakeProcess"
+            },
+            "example": [
+                "\nThere are two ways to invoke run(), the first returns an EventEmitter which emits output as it happens. \n            \n    var handbrake = require(\"handbrake-js\");\n    \n    var options = {\n        input: \"Eight Miles High.mov\",\n        output: \"Eight Miles High.m4v\",\n        preset: \"Normal\"\n    };\n\n    handbrake.run(options)\n        .on(\"output\", console.log);\n        .on(\"progress\", function(encode){\n            console.log(encode.percentComplete);\n        })\n        .on(\"complete\", function(){ \n            console.log(\"Encode complete\"); \n        });\n\nThe second method is to pass an `onComplete` callback. It's more convenient for short duration tasks: ",
+                "\n    handbrake.run({ preset-list: true }, function(stdout, stderr){\n        console.log(stdout);\n    });"
+            ],
+            "class": "handbrake-js"
+        },
+        {
+            "file": "lib/handbrake.js",
+            "line": 263,
+            "description": "Fired on completion of a successful encode",
+            "itemtype": "event",
+            "name": "complete",
+            "class": "HandbrakeProcess"
+        },
+        {
+            "file": "lib/handbrake.js",
+            "line": 267,
+            "description": "Fired if either HandbrakeCLI crashed or ran successfully but failed to find a valid title in the input video.",
+            "itemtype": "event",
+            "name": "error",
+            "params": [
+                {
+                    "name": "error",
+                    "description": "",
+                    "type": "Error"
+                }
+            ],
+            "class": "HandbrakeProcess"
+        },
+        {
+            "file": "lib/handbrake.js",
+            "line": 272,
+            "description": "Fired if Handbrake-js was killed by CTRL-C",
+            "itemtype": "event",
+            "name": "terminated",
+            "class": "HandbrakeProcess"
+        },
+        {
+            "file": "lib/handbrake.js",
+            "line": 276,
+            "description": "Passes the standard HandbrakeCLI output",
+            "itemtype": "event",
+            "name": "output",
+            "params": [
+                {
+                    "name": "output",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "class": "HandbrakeProcess"
+        },
+        {
+            "file": "lib/handbrake.js",
+            "line": 281,
+            "description": "Fired at regular intervals throughout the encode process passing progress information",
+            "itemtype": "event",
+            "name": "progress",
+            "params": [
+                {
+                    "name": "progress",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "percentComplete",
+                            "description": "Percentage complete",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "fps",
+                            "description": "Frames per second",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "avgFps",
+                            "description": "Average frames per second",
+                            "type": "Number"
+                        },
+                        {
+                            "name": "eta",
+                            "description": "Estimated time until completion",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "class": "HandbrakeProcess"
+        }
+    ],
+    "warnings": []
+}
