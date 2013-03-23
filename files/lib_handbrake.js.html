@@ -123,8 +123,8 @@ Runs HandbrakeCLI with the supplied [options](https:&#x2F;&#x2F;trac.handbrake.f
 @return {HandbrakeProcess} A HandbrakeProcess instance on which you can listen for events.
 
 @example
-There are two ways to invoke run(), the first returns an EventEmitter which emits output as it happens. 
-            
+There are two ways to invoke run(), the first returns an EventEmitter enabling you to catch [events](HandbrakeProcess.html#event_complete) as they happen.
+                        
     var handbrake = require(&quot;handbrake-js&quot;);
     
     var options = {
